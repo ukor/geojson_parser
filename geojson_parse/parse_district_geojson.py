@@ -10,7 +10,7 @@ from elasticsearch import Elasticsearch
 
 class District:
 
-    def __init__(self, file_path):
+    def __init__(self, es_client, source_path, dest_path):
         # initiate elastic search
         self.es = Elasticsearch()
         self.mongoClient = MongoClient('localhost', 27017)
@@ -22,7 +22,7 @@ class District:
         self.destination_dir = "./mapTestBackend/districts"
         self._index = "homeknock_places"
 
-        # old index - todo [@ukor]: delete 
+        # old index - todo [@ukor]: delete
         # self._index = "homeknock_geodata"
 
     def parse(self) -> int:
@@ -45,7 +45,7 @@ class District:
         collection = self.collection
         towns = collection.find({"Postcode": district})
         ts = []
-        for town in towns: 
+        for town in towns:
             ts.append(str(town["Town"]))
 
         # t = ", ".join(ts)

@@ -3,17 +3,16 @@ import simplejson as json
 from os import listdir, rename
 from os.path import isfile, join
 import ijson
-from elasticsearch import Elasticsearch
+from .es import es_client
 
 
 class AdminArea:
 
-    def __init__(self, dir_path):
+    def __init__(self, es_client, source_path, dest_path):
         self.write_count = 0
-        self.es = Elasticsearch()
-        self._dir_path = dir_path
-        self.destination_dir = "./mapTestBackend/uk_boundaries"
-        self._index = "homeknock_places"
+        self.es = es_client
+        self._dir_path = source_path
+        self.destination_dir = dest_path or  "./mapTestBackend/uk_boundaries"
 
     def parse(self) -> int:
         _dir_path = self._dir_path
@@ -38,18 +37,14 @@ class AdminArea:
                 del _props["alltags"]
 
                 print("Indexing {_props['name']} with id _props['id'] ")
-                
-                doc = {
-                    "id": _props["id"],
-                    "name": _props["name"],
-                    "official_name": _props["name"],
-                    "polygon_file_name": file_name,
-                    "scope": "administrative",
-                }
 
-                res = self.es.index(index=self._index,
-                            id=_props["id"], body=doc)
-                print(res["result"], "doc: elastic search")
+                es_client(es_instance=self.es).add_doc(
+                    id=_props["id"],
+                    name=_props["name"],
+                    official_name=_props["name"],
+                    polygon_file_name=file_name,
+                    scope="administrative")
+
                 _geoJson = {
                     "type": "FeatureCollection",
                     "features": [feature]

@@ -3,17 +3,17 @@ import simplejson as json
 from os import listdir, rename
 from os.path import isfile, join
 import ijson
-from elasticsearch import Elasticsearch
+from .es import es_client
 
 
 class Area:
 
-    def __init__(self, file_path):
+    def __init__(self, es_client, source_path, dest_path):
         # initiate elastic search
         self.es = Elasticsearch()
         self.write_count = 0
-        self._file_path = file_path
-        self.destination_dir = "./mapTestBackend/area"
+        self._file_path = source_path
+        self.destination_dir = dest_path or "./mapTestBackend/area"
         self._index = "homeknock_places"
 
 
@@ -32,15 +32,15 @@ class Area:
                 _props = feature['properties']
                 # write to a new file
                 file_name = _props['Name'].lower()
-                doc = {
-                    "id": _props["Name"].lower(),
-                    "name": _props["Name"],
-                    "official_name": f'{_props["Name"]} - Postcode Area',
-                    "polygon_file_name": file_name,
-                    "scope": "postcode_area",
-                }
-                res = self.es.index(index=self._index, id=file_name, body=doc)
-                print(res["result"], "doc: elastic search")
+                _props["name"] = _props["Name"]
+                del _props["Name"]
+
+                es_client(es_instance=self.es).add_doc(
+                    id=_props["name"].lower(),
+                    name=_props["name"],
+                    official_name=f'{_props["name"]} - Postcode Area',
+                    polygon_file_name=file_name,
+                    scope="postcode_area")
 
                 _geoJson = {
                     "type": "FeatureCollection",
@@ -49,7 +49,7 @@ class Area:
                 self._write_file(file_name, _geoJson)
                 print(
                     f"Wrote geoJSON from {file_path} to {file_name}.json")
-                time.sleep(0.5)
+                time.sleep(0.25)
 
 
     def _write_file(self, file_name, obj):
