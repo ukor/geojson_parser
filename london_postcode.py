@@ -15,7 +15,7 @@ import ijson
 from es.es import es_client
 from es.es_config import ConfigElasticSearch
 
-class Borough:
+class LondonPostCode:
     def __init__(self, *, src_path: str, dest_path: str, es_instance):
         self.home_dir = str(Path.home())
         self.src_path = src_path
@@ -55,17 +55,17 @@ class Borough:
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                file_name = _props["code"].lower()
+                file_name = _props["Name"].lower()
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [
                         {
-                            "type":"Feature",
+                            "type": "Feature",
                             "properties": {
-                                "name": _props["name"],
-                                "gss_code": _props["code"],
-                                "district_code": _props["code"],
-                                "district_name": _props["name"],
+                                "name": _props["Name"],
+                                "gss_code": "",
+                                "district_code": "",
+                                "district_name": "",
                             },
                             "geometry": feature["geometry"]
                         }
@@ -73,13 +73,13 @@ class Borough:
                 }
 
                 # Index to database
-                print(f"Indexing {_props['name']} with id {_props['code']}")
+                print(f"Indexing {_props['Name']} with id {file_name}")
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
-                    name=_props["name"],
-                    official_name=_props["name"],
+                    name=_props["Name"],
+                    official_name=f'{_props["Name"]}, London',
                     polygon_file_name=file_name,
-                    scope="london_borough")
+                    scope="postcode_area")
 
                 self._write_file(file_name=file_name, geojson=_geo_json)
                 print(
@@ -104,9 +104,9 @@ if __name__ == "__main__":
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
-    _src = f"{str(Path.home())}/Documents/upwork/homeknock/_data/london_boroughs.json"
-    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/london_boroughs"
-    borough = Borough(src_path=_src, dest_path=_dst, es_instance=_es_instance)
-    borough_count = borough.parse()
-    print(f"Created and Indexed {borough_count} boroughs")
+    _src = f"{str(Path.home())}/Documents/upwork/homeknock/_data/london_postcodes_map.geojson"
+    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/postcode_areas"
+    postcode_area = LondonPostCode(src_path=_src, dest_path=_dst, es_instance=_es_instance)
+    area_count = postcode_area.parse()
+    print(f"Created and Indexed {area_count} postcode areas")
     _es_client.refresh_index()
