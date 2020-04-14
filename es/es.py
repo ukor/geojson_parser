@@ -38,6 +38,6 @@ class es_client:
             "scope": scope,
         }
 
-        res = self.es.index(index=self._index, id=_props["id"], body=doc)
+        res = self.es.index(index=self._index, id=id, body=doc)
         print(res["result"], id, "doc: to index")
 
