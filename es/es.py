@@ -25,8 +25,9 @@ class es_client:
 
 
     def refresh_index(self):
+        es = self.es
         _ref = es.indices.refresh(index=self._index)
-        print(f"Action => Refreshed index", _create_index)
+        print(f"Action => Refreshed index", _ref)
 
 
     def add_doc(self, *, id, name, official_name, polygon_file_name, scope):
