@@ -20,7 +20,7 @@ class Wards:
         self.home_dir = str(Path.home())
         self.src_path = src_path
         self.es = es_instance
-        self.dest_path = f"{self.home_dir}/wards" if dest_path in [None, False, ""] else dest_path
+        self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.es_instance = es_instance
         self.write_count = 0
 
@@ -60,6 +60,7 @@ class Wards:
                     "type": "FeatureCollection",
                     "features": [
                         {
+                            "type":"Feature",
                             "properties": {
                                 "name": _props["NAME"],
                                 "gss_code": _props["GSS_CODE"],
@@ -103,8 +104,9 @@ if __name__ == "__main__":
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
-    _src = f"{str(Path.home())}/Documents/upwork/homeknock/_data/London_Ward_CityMerged.geojson"
-    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/wards"
+    _src = f"{str(Path.home())}/Documents/upwork/homeknock/_data/London-wards-2018.zip.geojson"
+    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/wards"
     ward = Wards(src_path=_src, dest_path=_dst, es_instance=_es_instance)
     ward_count = ward.parse()
     print(f"Created and Indexed {ward_count} ward")
+    _es_client.refresh_index()
