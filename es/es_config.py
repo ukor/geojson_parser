@@ -9,7 +9,7 @@ At search time use whatever th user as input to query elasticsearch
 
 
 class ConfigElasticSearch:
-    
+
     def settings(self):
         return {
             "settings": {
@@ -43,29 +43,30 @@ class ConfigElasticSearch:
                 "min_gram": 2,
                 "max_gram": 10,
                 "token_chars": [
-                    "letter"
+                    "letter",
+                    "digit",
                 ]
             }
         }
 
-    
+
     def _index_analyzer(self):
         return {
             "type": "custom",
             "tokenizer": "place_tokenizer",
             "filter": [
-                "lowercase",
-                "place_filter"
+                "lowercase", "asciifolding", "apostrophe", "place_filter"
             ]
         }
 
 
     def _search_analyzer(self):
         return {
-            "tokenizer": "lowercase"
+            "tokenizer": "keyword",
+            "filter": ["lowercase", "asciifolding", "apostrophe"]
         }
 
-    
+
     def _mappings(self):
         return {
             "properties": {
