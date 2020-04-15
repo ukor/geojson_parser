@@ -52,10 +52,12 @@ class LondonPostCode:
         with open(self.src_path, "rb") as _file:
             obj = ijson.items(_file, "features.item")
             features = (o for o in obj if o["type"] == "Feature")
+            _scope = "postcode_area"
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                file_name = _props["Name"].lower()
+                
+                file_name = f'{_scope}_{_props["Name"].lower()}'
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [
@@ -79,7 +81,7 @@ class LondonPostCode:
                     name=_props["Name"],
                     official_name=f'{_props["Name"]}, London',
                     polygon_file_name=file_name,
-                    scope="postcode_area")
+                    scope=_scope)
 
                 self._write_file(file_name=file_name, geojson=_geo_json)
                 print(
@@ -104,8 +106,11 @@ if __name__ == "__main__":
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
-    _src = f"{str(Path.home())}/Documents/upwork/homeknock/_data/london_postcodes_map.geojson"
-    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/postcode_areas"
+    _src = f"./raw/london_postcodes_map.geojson"
+    # demo server
+    _demo_dst = f"/var/www/hk_polygons"
+    # dev
+    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons"
     postcode_area = LondonPostCode(src_path=_src, dest_path=_dst, es_instance=_es_instance)
     area_count = postcode_area.parse()
     print(f"Created and Indexed {area_count} postcode areas")
