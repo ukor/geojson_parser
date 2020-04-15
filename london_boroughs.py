@@ -55,7 +55,8 @@ class Borough:
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                file_name = _props["code"].lower()
+                _scope = "london_borough"
+                file_name = f'{_scope}_{_props["code"].lower()}'
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [
@@ -79,7 +80,7 @@ class Borough:
                     name=_props["name"],
                     official_name=_props["name"],
                     polygon_file_name=file_name,
-                    scope="london_borough")
+                    scope=_scope)
 
                 self._write_file(file_name=file_name, geojson=_geo_json)
                 print(
@@ -108,7 +109,7 @@ if __name__ == "__main__":
     # demo server
     _demo_dst = f"/var/www/hk_polygons"
     # dev
-    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/london_boroughs"
+    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons"
     borough = Borough(src_path=_src, dest_path=_dst, es_instance=_es_instance)
     borough_count = borough.parse()
     print(f"Created and Indexed {borough_count} boroughs")
