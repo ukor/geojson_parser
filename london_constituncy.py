@@ -55,7 +55,8 @@ class Constituncy:
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                file_name = f'lc_{_props["id"]}'
+                _scope = "area"
+                file_name = f'{_scope}_{_props["id"]}'
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [
@@ -79,7 +80,7 @@ class Constituncy:
                     name=_props["name"].title(),
                     official_name=_props["name"].title(),
                     polygon_file_name=file_name,
-                    scope="area")
+                    scope=_scope)
 
                 self._write_file(file_name=file_name, geojson=_geo_json)
                 print(
@@ -107,7 +108,7 @@ if __name__ == "__main__":
     # demo server
     _demo_dst = f"/var/www/hk_polygons"
     # dev
-    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/areas"
+    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons"
     cons = Constituncy(src_path=_src, dest_path=_dst, es_instance=_es_instance)
     _count = cons.parse()
     print(f"Created and Indexed {_count} constituncies")

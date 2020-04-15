@@ -55,7 +55,8 @@ class Wards:
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                file_name = _props["GSS_CODE"].lower()
+                _scope = "ward"
+                file_name = f'{_scope}_{_props["GSS_CODE"].lower()}'
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [
@@ -79,7 +80,7 @@ class Wards:
                     name=_props["NAME"],
                     official_name=_props["NAME"],
                     polygon_file_name=file_name,
-                    scope="ward")
+                    scope=_scope)
 
                 self._write_file(file_name=file_name, geojson=_geo_json)
                 print(
@@ -108,7 +109,7 @@ if __name__ == "__main__":
     # demo server
     _demo_dst = f"/var/www/hk_polygons"
     # dev
-    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/wards"
+    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons"
     ward = Wards(src_path=_src, dest_path=_dst, es_instance=_es_instance)
     ward_count = ward.parse()
     print(f"Created and Indexed {ward_count} ward")
