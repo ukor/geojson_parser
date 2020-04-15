@@ -103,7 +103,10 @@ if __name__ == "__main__":
     _es_instance = Elasticsearch(timeout=300)
     _es_client = es_client(es_instance=_es_instance)
     _es_client.create_index()
-    _src = f"{str(Path.home())}/Documents/upwork/homeknock/_data/london_constituncy.zip.geojson"
+    _src = f"./raw/london_constituncy.zip.geojson"
+    # demo server
+    _demo_dst = f"/var/www/hk_polygons"
+    # dev
     _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/areas"
     cons = Constituncy(src_path=_src, dest_path=_dst, es_instance=_es_instance)
     _count = cons.parse()
