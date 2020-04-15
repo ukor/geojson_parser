@@ -104,7 +104,10 @@ if __name__ == "__main__":
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
-    _src = f"{str(Path.home())}/Documents/upwork/homeknock/_data/London-wards-2018.zip.geojson"
+    _src = f"./raw/London-wards-2018.zip.geojson"
+    # demo server
+    _demo_dst = f"/var/www/hk_polygons"
+    # dev
     _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/wards"
     ward = Wards(src_path=_src, dest_path=_dst, es_instance=_es_instance)
     ward_count = ward.parse()

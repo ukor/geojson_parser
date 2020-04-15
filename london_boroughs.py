@@ -104,7 +104,10 @@ if __name__ == "__main__":
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
-    _src = f"{str(Path.home())}/Documents/upwork/homeknock/_data/london_boroughs.json"
+    _src = f"./raw/london_boroughs.json"
+    # demo server
+    _demo_dst = f"/var/www/hk_polygons"
+    # dev
     _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons/london_boroughs"
     borough = Borough(src_path=_src, dest_path=_dst, es_instance=_es_instance)
     borough_count = borough.parse()
