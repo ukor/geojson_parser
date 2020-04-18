@@ -108,7 +108,7 @@ if __name__ == "__main__":
     host = "localhost" if env == "dev" else config_obj.get("es_prod")
     port = 9200 if env == "dev" else 443
     _es_instance = Elasticsearch(timeout=300, hosts=host, port=port, use_ssl=True, ca_certs=certifi.where())
-    _destination = config_obj.get("dev_destination") if env == "dev" else config_obj.get("demo_dst")
+    _destination = config_obj.get("dev_destination") if env == "dev" else config_obj.get("demo_destination")
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
