@@ -8,7 +8,9 @@ from pathlib import Path
 from os.path import join
 import time
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, RequestsHttpConnection
+from requests_aws4auth import AWS4Auth
+import boto3
 import simplejson as json
 import ijson
 
@@ -105,8 +107,18 @@ class PostCode:
 if __name__ == "__main__":
     env = config_obj.get("env")
     host = "localhost" if env == "dev" else config_obj.get("es_prod")
-    port = "9200" if env == "dev" else None
-    _es_instance = Elasticsearch(timeout=300, hosts=host, port=port)
+    port = 9200 if env == "dev" else 443
+    region = "eu-central-1"
+    service = 'es'
+    credentials = boto3.Session().get_credentials()
+    awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
+
+    _es_instance = Elasticsearch(
+        timeout=300, hosts=host,
+        port=port, http_auth = awsauth,
+        use_ssl = True,
+        verify_certs = True,
+        connection_class = RequestsHttpConnection)
     _destination = config_obj.get("dev_destination") if env == "dev" else config_obj.get("demo_dst")
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
