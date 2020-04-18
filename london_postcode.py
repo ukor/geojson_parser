@@ -12,6 +12,7 @@ from elasticsearch import Elasticsearch
 import simplejson as json
 import ijson
 
+from config.config import config_obj
 from es.es import es_client
 from es.es_config import ConfigElasticSearch
 
@@ -56,7 +57,7 @@ class LondonPostCode:
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                
+
                 file_name = f'{_scope}_{_props["Name"].lower()}'
                 _geo_json = {
                     "type": "FeatureCollection",
@@ -102,16 +103,16 @@ class LondonPostCode:
 
 
 if __name__ == "__main__":
-    _es_instance = Elasticsearch(timeout=300)
+    env = config_obj.get("env")
+    host = "localhost" if env == "dev" else config_obj.get("es_prod")
+    port = "9200" if env == "dev" else None
+    _es_instance = Elasticsearch(timeout=300, hosts=host, port=port)
+    _destination = config_obj.get("dev_destination") if env == "dev" else config_obj.get("demo_dst")
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/london_postcodes_map.geojson"
-    # demo server
-    _demo_dst = f"/var/www/hk_polygons"
-    # dev
-    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons"
-    postcode_area = LondonPostCode(src_path=_src, dest_path=_dst, es_instance=_es_instance)
+    postcode_area = LondonPostCode(src_path=_src, dest_path=_destination, es_instance=_es_instance)
     area_count = postcode_area.parse()
     print(f"Created and Indexed {area_count} postcode areas")
     _es_client.refresh_index()

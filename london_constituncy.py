@@ -12,6 +12,7 @@ from elasticsearch import Elasticsearch
 import simplejson as json
 import ijson
 
+from config.config import config_obj
 from es.es import es_client
 from es.es_config import ConfigElasticSearch
 
@@ -101,15 +102,15 @@ class Constituncy:
 
 
 if __name__ == "__main__":
-    _es_instance = Elasticsearch(timeout=300)
+    env = config_obj.get("env")
+    host = "localhost" if env == "dev" else config_obj.get("es_prod")
+    port = "9200" if env == "dev" else None
+    _es_instance = Elasticsearch(timeout=300, hosts=host, port=port)
+    _destination = config_obj.get("dev_destination") if env == "dev" else config_obj.get("demo_dst")
     _es_client = es_client(es_instance=_es_instance)
     _es_client.create_index()
     _src = f"./raw/london_constituncy.zip.geojson"
-    # demo server
-    _demo_dst = f"/var/www/hk_polygons"
-    # dev
-    _dst = f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons"
-    cons = Constituncy(src_path=_src, dest_path=_dst, es_instance=_es_instance)
+    cons = Constituncy(src_path=_src, dest_path=_destination, es_instance=_es_instance)
     _count = cons.parse()
     print(f"Created and Indexed {_count} constituncies")
     _es_client.refresh_index()

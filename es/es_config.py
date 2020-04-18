@@ -45,6 +45,7 @@ class ConfigElasticSearch:
                 "token_chars": [
                     "letter",
                     "digit",
+                    "whitespace"
                 ]
             }
         }
