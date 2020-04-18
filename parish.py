@@ -67,8 +67,8 @@ class Parish:
                             "properties": {
                                 "name": _props["par19nm"],
                                 "gss_code": _props["par19cd"],
-                                "district_code": _props["par19cd"],
-                                "district_name": _props["par19nm"],
+                                "district_code": _props["lad19cd"],
+                                "district_name": _props["lad19nm"],
                             },
                             "geometry": feature["geometry"]
                         }
@@ -76,7 +76,7 @@ class Parish:
                 }
 
                 # Index to database
-                print(f"Indexing {_props['name']} with id {_props['code']}")
+                print(f"Indexing {_props["par19nm"]} with id {_props["par19cd"]}")
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
                     name=_props["par19nm"],
