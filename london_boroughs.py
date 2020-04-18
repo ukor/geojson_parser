@@ -53,10 +53,10 @@ class Borough:
         with open(self.src_path, "rb") as _file:
             obj = ijson.items(_file, "features.item")
             features = (o for o in obj if o["type"] == "Feature")
+            _scope = "london_borough"
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                _scope = "london_borough"
                 file_name = f'{_scope}_{_props["code"].lower()}'
                 _geo_json = {
                     "type": "FeatureCollection",
