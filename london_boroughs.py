@@ -107,7 +107,7 @@ if __name__ == "__main__":
     env = config_obj.get("env")
     host = "localhost" if env == "dev" else config_obj.get("es_prod")
     port = 9200 if env == "dev" else 443
-    _region = "eu-central-1"
+    region = "eu-central-1"
     service = 'es'
     credentials = boto3.Session().get_credentials()
     awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
