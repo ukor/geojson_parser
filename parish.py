@@ -76,7 +76,7 @@ class Parish:
                 }
 
                 # Index to database
-                print(f"Indexing {_props["par19nm"]} with id {_props["par19cd"]}")
+                print(f"Indexing {_props['par19nm']} with id {_props['par19cd']}")
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
                     name=_props["par19nm"],
