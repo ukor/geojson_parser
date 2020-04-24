@@ -81,6 +81,7 @@ class Borough:
                     id=file_name,
                     name=_props["name"],
                     official_name=_props["name"],
+                    district="London",
                     polygon_file_name=file_name,
                     scope=_scope)
 

@@ -81,7 +81,8 @@ class Wards:
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
                     name=_props["NAME"],
-                    official_name=_props["NAME"],
+                    official_name= _props["NAME"],
+                    district= f'{_props["DISTRICT"]}, London',
                     polygon_file_name=file_name,
                     scope=_scope)
 
