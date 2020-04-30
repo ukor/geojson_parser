@@ -82,7 +82,7 @@ class Wards:
                     id=file_name,
                     name=_props["NAME"],
                     official_name= _props["NAME"],
-                    district= f'{_props["DISTRICT"]}, London',
+                    district= f'{_props["DISTRICT"]}, London, UK',
                     polygon_file_name=file_name,
                     scope=_scope)
 
