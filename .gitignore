@@ -5,8 +5,4 @@ lib/
 pyvenv.cfg
 __pycache__/
 *.nginx.conf
-*.csv
-*.geojson
-*.json
-*.kml
 uk/
