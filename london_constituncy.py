@@ -81,7 +81,7 @@ class Constituncy:
                     id=file_name,
                     name=_props["name"].title(),
                     official_name=_props["name"].title(),
-                    district="London",
+                    district="London, UK",
                     polygon_file_name=file_name,
                     scope=_scope)
 
