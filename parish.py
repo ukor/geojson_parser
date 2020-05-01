@@ -81,6 +81,7 @@ class Parish:
                     id=file_name,
                     name=_props["par19nm"],
                     official_name=_props["par19nm"],
+                    district=_props["lad19nm"]
                     polygon_file_name=file_name,
                     scope=_scope)
 
