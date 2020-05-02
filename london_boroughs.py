@@ -118,7 +118,7 @@ if __name__ == "__main__":
             timeout=300, hosts=ES_ENDPOINT,
             port=443, use_ssl=True,
             http_auth=aws_auth,
-            connection_class: RequestsHttpConnection,
+            connection_class= RequestsHttpConnection,
             ca_certs=certifi.where())
 
     _destination = POLYGON_DESTINATION
