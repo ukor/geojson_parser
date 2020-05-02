@@ -3,11 +3,12 @@ Interface for elastic search
 """
 
 from .es_config import ConfigElasticSearch
+from ..config.config import ES_INDEX_NAME
 
 class es_client:
     def __init__(self, es_instance):
         self.es = es_instance;
-        self._index = "homeknock_places"
+        self._index = ES_INDEX_NAME
 
 
     def delete_index(self):
