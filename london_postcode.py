@@ -85,7 +85,8 @@ class LondonPostCode:
                     id=file_name,
                     name=_props["Name"],
                     official_name={_props["Name"]},
-                    district="London, UK",
+                    district="London",
+                    country="UK",
                     polygon_file_name=file_name,
                     scope=_scope)
 

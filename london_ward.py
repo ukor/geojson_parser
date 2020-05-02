@@ -85,7 +85,8 @@ class Wards:
                     id=file_name,
                     name=_props["NAME"],
                     official_name= _props["NAME"],
-                    district= f'{_props["DISTRICT"]}, London, UK',
+                    district= f'{_props["DISTRICT"]}, London',
+                    country="UK",
                     polygon_file_name=file_name,
                     scope=_scope)
 
@@ -120,7 +121,7 @@ if __name__ == "__main__":
             port=443, use_ssl=True,
             http_auth=aws_auth,
             ca_certs=certifi.where())
-            
+
     _destination = POLYGON_DESTINATION
 
     _es_client = es_client(es_instance=_es_instance)
