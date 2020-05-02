@@ -12,8 +12,10 @@ import certifi
 from elasticsearch import Elasticsearch
 import simplejson as json
 import ijson
+from requests_aws4auth import AWS4Auth
 
-from config.config import config_obj
+from config.config import (ES_ENDPOINT, ENV, AWS_ACCESS_KEY_ID,
+    AWS_SECRET_ACCESS_KEY, AWS_REGION, POLYGON_DESTINATION)
 from es.es import es_client
 from es.es_config import ConfigElasticSearch
 
@@ -104,11 +106,21 @@ class Borough:
 
 
 if __name__ == "__main__":
-    env = config_obj.get("env")
-    host = "localhost" if env == "dev" else config_obj.get("es_prod")
-    port = "9200" if env == "dev" else 443
-    _es_instance = Elasticsearch(timeout=300, hosts=[host], port=port, use_ssl=True, ca_certs=certifi.where())
-    _destination = config_obj.get("dev_destination") if env == "dev" else config_obj.get("demo_destination")
+    _es_instance = Elasticsearch(timeout=300)
+    if ENV != "dev":
+        aws_auth = AWS4Auth(
+            AWS_ACCESS_KEY_ID,
+            AWS_SECRET_ACCESS_KEY,
+            AWS_REGION,
+            "es")
+        _es_instance = Elasticsearch(
+            timeout=300, hosts=ES_ENDPOINT,
+            port=443, use_ssl=True,
+            http_auth=aws_auth,
+            ca_certs=certifi.where())
+
+    _destination = POLYGON_DESTINATION
+
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
