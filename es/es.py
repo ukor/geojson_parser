@@ -3,12 +3,12 @@ Interface for elastic search
 """
 
 from .es_config import ConfigElasticSearch
-from config.config import ES_INDEX_NAME
+# from config.config import ES_INDEX_NAME
 
 class es_client:
     def __init__(self, es_instance):
         self.es = es_instance;
-        self._index = ES_INDEX_NAME
+        self._index = "homeknock_places"
 
 
     def delete_index(self):
@@ -31,11 +31,13 @@ class es_client:
         print(f"Action => Refreshed index", _ref)
 
 
-    def add_doc(self, *, id, name, official_name, polygon_file_name, scope):
+    def add_doc(self, *, id, name, district="", country, official_name, polygon_file_name, scope):
         doc = {
             "id": id,
             "name": name,
             "official_name": official_name,
+            "district": district,
+            "country": country,
             "polygon_file_name": polygon_file_name,
             "scope": scope,
         }
