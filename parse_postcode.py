@@ -85,6 +85,7 @@ class PostCode:
                     id=file_name,
                     name=_props["name"],
                     official_name=f'{_props["name"]}',
+                    district="",
                     country="UK",
                     polygon_file_name=file_name,
                     scope=_scope)
