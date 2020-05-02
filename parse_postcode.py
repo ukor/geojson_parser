@@ -84,7 +84,8 @@ class PostCode:
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
                     name=_props["name"],
-                    official_name=f'{_props["name"]}, London',
+                    official_name=f'{_props["name"]}',
+                    country="UK",
                     polygon_file_name=file_name,
                     scope=_scope)
 
@@ -121,7 +122,7 @@ if __name__ == "__main__":
             ca_certs=certifi.where())
 
     _destination = POLYGON_DESTINATION
-    
+
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
