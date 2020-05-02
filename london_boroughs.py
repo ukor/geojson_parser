@@ -9,7 +9,7 @@ from os.path import join
 import time
 
 import certifi
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, RequestsHttpConnection
 import simplejson as json
 import ijson
 from requests_aws4auth import AWS4Auth
@@ -118,6 +118,7 @@ if __name__ == "__main__":
             timeout=300, hosts=ES_ENDPOINT,
             port=443, use_ssl=True,
             http_auth=aws_auth,
+            connection_class= RequestsHttpConnection,
             ca_certs=certifi.where())
 
     _destination = POLYGON_DESTINATION
