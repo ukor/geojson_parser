@@ -14,10 +14,10 @@ import simplejson as json
 import ijson
 from requests_aws4auth import AWS4Auth
 
-from config.config import (ES_ENDPOINT, ENV, AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY, AWS_REGION, POLYGON_DESTINATION)
+from config.config import POLYGON_DESTINATION
 from es.es import es_client
 from es.es_config import ConfigElasticSearch
+from es_instance import es_instance
 
 class Borough:
     def __init__(self, *, src_path: str, dest_path: str, es_instance):
@@ -107,27 +107,13 @@ class Borough:
 
 
 if __name__ == "__main__":
-    _es_instance = Elasticsearch(timeout=300)
-    if ENV != "dev":
-        aws_auth = AWS4Auth(
-            AWS_ACCESS_KEY_ID,
-            AWS_SECRET_ACCESS_KEY,
-            AWS_REGION,
-            "es")
-        _es_instance = Elasticsearch(
-            timeout=300, hosts=ES_ENDPOINT,
-            port=443, use_ssl=True,
-            http_auth=aws_auth,
-            connection_class= RequestsHttpConnection,
-            ca_certs=certifi.where())
-
-    _destination = POLYGON_DESTINATION
+    _es_instance = es_instance()
 
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/london_boroughs.json"
-    borough = Borough(src_path=_src, dest_path=_destination, es_instance=_es_instance)
+    borough = Borough(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
     borough_count = borough.parse()
     print(f"Created and Indexed {borough_count} boroughs")
     _es_client.refresh_index()

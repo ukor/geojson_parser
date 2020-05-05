@@ -14,11 +14,11 @@ import simplejson as json
 import ijson
 from requests_aws4auth import AWS4Auth
 
+from config.config import POLYGON_DESTINATION
+
 from es.es import es_client
 from es.es_config import ConfigElasticSearch
-
-from config.config import (ES_ENDPOINT, ENV, AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY, AWS_REGION, POLYGON_DESTINATION)
+from es_instance import es_instance
 
 
 class Wards:
@@ -85,7 +85,8 @@ class Wards:
                     id=file_name,
                     name=_props["NAME"],
                     official_name= _props["NAME"],
-                    district= f'{_props["DISTRICT"]}, London',
+                    # district= f'{_props["DISTRICT"]}, London',
+                    district= "London", # base on feedback - _props["DISTRICT"] =
                     country="UK",
                     polygon_file_name=file_name,
                     scope=_scope)
@@ -109,27 +110,13 @@ class Wards:
 
 
 if __name__ == "__main__":
-    _es_instance = Elasticsearch(timeout=300)
-    if ENV != "dev":
-        aws_auth = AWS4Auth(
-            AWS_ACCESS_KEY_ID,
-            AWS_SECRET_ACCESS_KEY,
-            AWS_REGION,
-            "es")
-        _es_instance = Elasticsearch(
-            timeout=300, hosts=ES_ENDPOINT,
-            port=443, use_ssl=True,
-            http_auth=aws_auth,
-            connection_class= RequestsHttpConnection,
-            ca_certs=certifi.where())
-
-    _destination = POLYGON_DESTINATION
+    _es_instance = es_instance()
 
     _es_client = es_client(es_instance=_es_instance)
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/London-wards-2018.zip.geojson"
-    ward = Wards(src_path=_src, dest_path=_destination, es_instance=_es_instance)
+    ward = Wards(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
     ward_count = ward.parse()
     print(f"Created and Indexed {ward_count} ward")
     _es_client.refresh_index()
