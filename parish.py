@@ -13,7 +13,8 @@ from elasticsearch import Elasticsearch, RequestsHttpConnection
 import simplejson as json
 import ijson
 from requests_aws4auth import AWS4Auth
-
+from shapely.geometry import Point
+from shapely.geometry.polygon import Polygon
 
 from config.config import POLYGON_DESTINATION
 
@@ -21,6 +22,7 @@ from es.es import es_client
 from es.es_config import ConfigElasticSearch
 from es_instance import es_instance
 
+from great_london_poly import poly
 class Parish:
     def __init__(self, *, src_path: str, dest_path: str, es_instance):
         self.home_dir = str(Path.home())
@@ -29,6 +31,7 @@ class Parish:
         self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.es_instance = es_instance
         self.write_count = 0
+        self.g_london_bbbox = Polygon([(-0.51037508, 51.286758), (0.33401549, 51.691875)])
 
 
     def parse(self):
@@ -60,40 +63,45 @@ class Parish:
             features = (o for o in obj if o["type"] == "Feature")
             _scope = "parish"
             for feature in features:
-                # write to a new file using place id as file name
-                _props = feature["properties"]
-                file_name = f'{_scope}_{_props["par19cd"].lower()}'
-                _geo_json = {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type":"Feature",
-                            "properties": {
-                                "name": _props["par19nm"],
-                                "gss_code": _props["par19cd"],
-                                "district_code": _props["lad19cd"],
-                                "district_name": _props["lad19nm"],
-                            },
-                            "geometry": feature["geometry"]
-                        }
-                    ],
-                }
+                _first_point = feature.get("geometry", {}).get("coordinates")[0][0]
+                _point = Point(_first_point[0], _first_point[1])
+                # check if parish is withing great london
+                # only write to file if parish is withing london
+                if poly.contains(_point):
+                    # write to a new file using place id as file name
+                    _props = feature["properties"]
+                    file_name = f'{_scope}_{_props["par19cd"].lower()}'
+                    _geo_json = {
+                        "type": "FeatureCollection",
+                        "features": [
+                            {
+                                "type":"Feature",
+                                "properties": {
+                                    "name": _props["par19nm"],
+                                    "gss_code": _props["par19cd"],
+                                    "district_code": _props["lad19cd"],
+                                    "district_name": _props["lad19nm"],
+                                },
+                                "geometry": feature["geometry"]
+                            }
+                        ],
+                    }
 
-                # Index to database
-                print(f"Indexing {_props['par19nm']} with id {_props['par19cd']}")
-                es_client(es_instance=self.es).add_doc(
-                    id=file_name,
-                    name=_props["par19nm"],
-                    official_name=_props["par19nm"],
-                    district=_props["lad19nm"],
-                    country="UK",
-                    polygon_file_name=file_name,
-                    scope=_scope)
+                    # Index to database
+                    print(f"Indexing {_props['par19nm']} with id {_props['par19cd']}")
+                    es_client(es_instance=self.es).add_doc(
+                        id=file_name,
+                        name=_props["par19nm"],
+                        official_name=_props["par19nm"],
+                        district=_props["lad19nm"],
+                        country="UK",
+                        polygon_file_name=file_name,
+                        scope=_scope)
 
-                self._write_file(file_name=file_name, geojson=_geo_json)
-                print(
-                    f"Start writing geoJSON from {Path(self.src_path).name} to {file_name}.json")
-                time.sleep(0.25)
+                    self._write_file(file_name=file_name, geojson=_geo_json)
+                    print(
+                        f"Start writing geoJSON from {Path(self.src_path).name} to {file_name}.json")
+                    time.sleep(0.25)
 
 
     def _write_file(self, *,file_name, geojson):
