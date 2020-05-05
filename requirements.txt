@@ -1,11 +1,13 @@
 certifi==2020.4.5.1
 chardet==3.0.4
+click==7.1.2
 colorama==0.4.3
 docutils==0.15.2
 elasticsearch==7.6.0
 idna==2.9
 ijson==3.0.3
 jmespath==0.9.5
+kml2geojson==4.0.2
 numpy==1.18.3
 pandas==1.0.3
 pyasn1==0.4.8
@@ -17,6 +19,7 @@ requests==2.23.0
 requests-aws4auth==0.9
 rsa==3.4.2
 s3transfer==0.3.3
+Shapely==1.7.0
 simplejson==3.17.0
 six==1.14.0
 urllib3==1.25.9
