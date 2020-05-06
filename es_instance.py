@@ -1,5 +1,5 @@
 from elasticsearch import Elasticsearch, RequestsHttpConnection
-from requests_aws4auth import AWSAuth
+from requests_aws4auth import AWS4Auth
 import certifi
 
 from es.es import es_client
