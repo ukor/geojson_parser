@@ -34,9 +34,9 @@ postcode = [
 # wikipedia = "https://en.wikipedia.org/w/index.php?title=Template:Attached_KML/BR_postcode_area&action=raw"
 # doogal = "https://www.doogal.co.uk/GetAreaKml.ashx?postcodes=EC1&topLevel=true"
 
-for p in outer_london_postcode:
-    file_path = join("./raw", p.get("name").lower())
-    file_name = f"{file_path}.kml"
+for p in postcode:
+    file_name = p.get("name").lower()
+    file_path = join("./raw", file_name) + ".kml"
     # download kml files
     r = requests.get(p.get("kml_url"))
 
