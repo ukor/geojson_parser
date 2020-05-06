@@ -109,10 +109,14 @@ if __name__ == "__main__":
     # _es_client.delete_index()
     _es_client.create_index()
     file_name = "london_postcode_sectors"
-    _kml_src = f"./raw/{file_name}.kml"
-    _geojson_src = f"./raw/{file_name}.geojson"
+    
+    # _kml_src = f"./raw/{file_name}.kml"
     # convert from kml to geoJSON
-    kml2geojson.main.convert(_kml_src, "./raw")
+    # python crashes for large files - ogr2ogr handles the conversion in the terminal
+    # kml2geojson.main.convert(_kml_src, "./raw")
+
+    _geojson_src = f"./raw/{file_name}.geojson"
+
     # Parse and index individual geoJson
     place = PostcodeSector(src_path=_geojson_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
     place_count = place.parse()
