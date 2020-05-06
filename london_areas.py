@@ -77,7 +77,7 @@ class Place:
                 }
 
                 # Index to database
-                print(f"Indexing {_props["name"]} with id {file_name}")
+                print(f"Indexing {_props['name']} with id {file_name}")
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
                     name=place_name,
