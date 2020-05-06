@@ -6,7 +6,7 @@ from .es_config import ConfigElasticSearch
 # from config.config import ES_INDEX_NAME
 
 class es_client:
-    def __init__(self, es_index=None, es_instance):
+    def __init__(self, es_instance, es_index=None):
         self.es = es_instance;
         self._index = "homeknock_places" if es_index in [None, False, "", 0] else es_index
 
