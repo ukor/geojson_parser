@@ -62,7 +62,8 @@ class Parish:
             features = (o for o in obj if o["type"] == "Feature")
             _scope = "parish"
             for feature in features:
-                _first_point = feature.get("geometry", {}).get("coordinates")[0][0][0]
+                fp = feature.get("geometry", {}).get("coordinates")[0][0]
+                _first_point = fp[0] if isinstance(fp, list) else fp
                 _point = Point(_first_point[0], _first_point[1])
                 # check if parish is withing great london
                 # only write to file if parish is withing london
