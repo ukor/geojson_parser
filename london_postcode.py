@@ -84,7 +84,7 @@ class LondonPostCode:
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
                     name=_props["Name"],
-                    official_name={_props["Name"]},
+                    official_name=_props["Name"],
                     district="London",
                     country="UK",
                     polygon_file_name=file_name,
