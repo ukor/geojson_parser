@@ -84,7 +84,7 @@ class PostCode:
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
                     name=_props["name"],
-                    official_name=f'{_props["name"]}',
+                    official_name=_props["name"],
                     # London is a pamilary constinuncy not a district
                     district="London",
                     country="UK",
