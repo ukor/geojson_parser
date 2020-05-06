@@ -62,11 +62,11 @@ class Parish:
             features = (o for o in obj if o["type"] == "Feature")
             _scope = "parish"
             for feature in features:
-                _first_point = feature.get("geometry", {}).get("coordinates")[0][0]
+                _first_point = feature.get("geometry", {}).get("coordinates")[0][0][0]
                 _point = Point(_first_point[0], _first_point[1])
                 # check if parish is withing great london
                 # only write to file if parish is withing london
-                if poly.contains(_point):
+                if Polygon(poly).contains(_point):
                     # write to a new file using place id as file name
                     _props = feature["properties"]
                     file_name = f'{_scope}_{_props["par19cd"].lower()}'
