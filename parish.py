@@ -61,13 +61,15 @@ class Parish:
             obj = ijson.items(_file, "features.item")
             features = (o for o in obj if o["type"] == "Feature")
             _scope = "parish"
+            # greater london polygon
+            _poly = Polygon(poly)
             for feature in features:
                 fp = feature.get("geometry", {}).get("coordinates")[0][0]
-                _first_point = fp[0] if isinstance(fp, list) else fp
+                _first_point = fp[0] if isinstance(fp[0], list) else fp
                 _point = Point(_first_point[0], _first_point[1])
                 # check if parish is withing great london
                 # only write to file if parish is withing london
-                if Polygon(poly).contains(_point):
+                if _poly.contains(_point) or _poly.touches(_point):
                     # write to a new file using place id as file name
                     _props = feature["properties"]
                     file_name = f'{_scope}_{_props["par19cd"].lower()}'
