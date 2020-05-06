@@ -31,7 +31,6 @@ class Parish:
         self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.es_instance = es_instance
         self.write_count = 0
-        self.g_london_bbbox = Polygon([(-0.51037508, 51.286758), (0.33401549, 51.691875)])
 
 
     def parse(self):
