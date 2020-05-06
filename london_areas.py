@@ -13,6 +13,7 @@ import ijson
 from requests_aws4auth import AWS4Auth
 import kml2geojson
 import requests
+import shortuuid
 
 
 from config.config import POLYGON_DESTINATION
@@ -62,7 +63,7 @@ class Place:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
                 place_name = _props["name"] if _props["name"].find(", London") < 0 else _props["name"][:_props["name"].find(", London")]
-                file_name = f'{_scope}_{place_name.lower()}'
+                file_name = f'{_scope}_{shortuuid.uuid()}'
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [

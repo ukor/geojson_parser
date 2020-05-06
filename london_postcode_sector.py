@@ -58,8 +58,8 @@ class PostcodeSector:
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                place_name = _props["name"] if _props["name"].find(", London") < 0 else _props["name"][:_props["name"].find(", London")]
-                file_name = f'{_scope}_{place_name.lower()}'
+                place_name = _props["Name"] if _props["Name"].find(", London") < 0 else _props["Name"][:_props["Name"].find(", London")]
+                file_name = f'{_scope}_{place_name.lower().replace(" ", "_")}'
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [
@@ -74,7 +74,7 @@ class PostcodeSector:
                 }
 
                 # Index to database
-                print(f"Indexing {_props['name']} with id {file_name}")
+                print(f"Indexing {_props['Name']} with id {file_name}")
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
                     name=place_name,
@@ -109,10 +109,14 @@ if __name__ == "__main__":
     # _es_client.delete_index()
     _es_client.create_index()
     file_name = "london_postcode_sectors"
-    _kml_src = f"./raw/{file_name}.kml"
-    _geojson_src = f"./raw/{file_name}.geojson"
+
+    # _kml_src = f"./raw/{file_name}.kml"
     # convert from kml to geoJSON
-    kml2geojson.main.convert(_kml_src, "./raw")
+    # python crashes for large files - ogr2ogr handles the conversion in the terminal
+    # kml2geojson.main.convert(_kml_src, "./raw")
+
+    _geojson_src = f"./raw/{file_name}.geojson"
+
     # Parse and index individual geoJson
     place = PostcodeSector(src_path=_geojson_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
     place_count = place.parse()
