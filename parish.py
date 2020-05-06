@@ -31,7 +31,6 @@ class Parish:
         self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.es_instance = es_instance
         self.write_count = 0
-        self.g_london_bbbox = Polygon([(-0.51037508, 51.286758), (0.33401549, 51.691875)])
 
 
     def parse(self):
@@ -63,11 +62,12 @@ class Parish:
             features = (o for o in obj if o["type"] == "Feature")
             _scope = "parish"
             for feature in features:
-                _first_point = feature.get("geometry", {}).get("coordinates")[0][0]
+                fp = feature.get("geometry", {}).get("coordinates")[0][0]
+                _first_point = fp[0] if isinstance(fp, list) else fp
                 _point = Point(_first_point[0], _first_point[1])
                 # check if parish is withing great london
                 # only write to file if parish is withing london
-                if poly.contains(_point):
+                if Polygon(poly).contains(_point):
                     # write to a new file using place id as file name
                     _props = feature["properties"]
                     file_name = f'{_scope}_{_props["par19cd"].lower()}'

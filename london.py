@@ -113,7 +113,7 @@ if __name__ == "__main__":
     _es_instance = es_instance()
 
     _es_client = es_client(es_instance=_es_instance)
-    # _es_client.delete_index()
+    _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/london.json"
     london = London(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)

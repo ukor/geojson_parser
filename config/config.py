@@ -6,7 +6,7 @@ load_dotenv()
 
 def setPolygonDestination(env: str) -> str:
     if env == "dev":
-        return f"{str(Path.home())}/programming_projects/knockhome/map-test-backend/mapTestBackend/polygons",
+        return f"{str(Path.home())}geojson_parse/raw"
     return getenv("POLYGON_DESTINATION")
 
 ENV = getenv("ENV")
