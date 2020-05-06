@@ -44,7 +44,7 @@ for p in postcode:
         file.write(r.content)
         # convert kml to geojson
         kml2geojson.main.convert(file_path, "./raw")
-        geojson_file = f"{file_name}.geojson"
+        geojson_file = join("./raw", f"{file_name}.geojson")
 
         # parse and index this geojson
         _es_client = es_client(es_instance=es_instance())
