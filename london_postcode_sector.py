@@ -54,7 +54,7 @@ class PostcodeSector:
         with open(self.src_path, "rb") as _file:
             obj = ijson.items(_file, "features.item")
             features = (o for o in obj if o["type"] == "Feature")
-            _scope = "place"
+            _scope = "postcode_sector"
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
@@ -74,7 +74,7 @@ class PostcodeSector:
                 }
 
                 # Index to database
-                print(f"Indexing {_props['name']} with id {_props['code']}")
+                print(f"Indexing {_props["name"]} with id {file_name}")
                 es_client(es_instance=self.es).add_doc(
                     id=file_name,
                     name=place_name,
