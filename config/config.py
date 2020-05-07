@@ -12,6 +12,7 @@ def setPolygonDestination(env: str) -> str:
 ENV = getenv("ENV")
 POLYGON_DESTINATION = setPolygonDestination(ENV)
 ES_ENDPOINT = getenv("AWS_ES_ENDPOINT")
+# this does not exist in .env - todo
 ES_INDEX_NAME = getenv("ES_INDEX_NAME")
 
 AWS_USER = getenv("AWS_USER")

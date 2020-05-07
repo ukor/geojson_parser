@@ -96,7 +96,7 @@ class Place:
 
     def _write_file(self, *,file_name, geojson):
         """_write_file - Write polygons into file"""
-        _f_name = file_name.lower().replace("/", "_").replace(" ", "_")
+        _f_name = file_name.replace("/", "_").replace(" ", "_")
         _file_path = join(self.dest_path, _f_name) + ".json"
         # write into file as json
         with open(_file_path, "w") as json_file:
@@ -109,7 +109,7 @@ class Place:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance)
+    _es_client = es_client(es_instance=_es_instance, es_index="hk_places")
     # _es_client.delete_index()
     _es_client.create_index()
     file_name = "london_areas"
