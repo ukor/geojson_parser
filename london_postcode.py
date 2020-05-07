@@ -26,7 +26,6 @@ class LondonPostCode:
         self.src_path = src_path
         self.es = es_instance
         self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
-        self.es_instance = es_instance
         self.write_count = 0
 
 
@@ -81,7 +80,8 @@ class LondonPostCode:
 
                 # Index to database
                 print(f"Indexing {_props['Name']} with id {file_name}")
-                es_client(es_instance=self.es).add_doc(
+                es_client = self.es
+                es_client.add_doc(
                     id=file_name,
                     name=_props["Name"],
                     official_name=_props["Name"],
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/london_postcodes_map.geojson"
-    postcode_area = LondonPostCode(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
+    postcode_area = LondonPostCode(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
     area_count = postcode_area.parse()
     print(f"Created and Indexed {area_count} postcode areas")
     _es_client.refresh_index()
