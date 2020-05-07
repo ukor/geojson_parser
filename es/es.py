@@ -47,7 +47,7 @@ class es_client:
         query = {
             "query": {
                 "match": {
-                    "scope": query_string
+                    "id": query_string
                 }
             }
         }
