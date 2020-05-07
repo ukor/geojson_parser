@@ -48,6 +48,7 @@ for p in postcode:
 
         # parse and index this geojson
         _es_client = es_client(es_instance=es_instance(), es_index="hk_postcode_areas")
+        _es_client.delete_index()
         _es_client.create_index()
         postcode_area = PostCode(src_path=geojson_file, dest_path=POLYGON_DESTINATION, es_instance=es_instance())
         area_count = postcode_area.parse()
