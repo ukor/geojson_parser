@@ -110,7 +110,7 @@ class Constituncy:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance)
+    _es_client = es_client(es_instance=_es_instance, es_index="hk_places")
     _es_client.create_index()
     _src = f"./raw/london_constituncy.zip.geojson"
     cons = Constituncy(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)

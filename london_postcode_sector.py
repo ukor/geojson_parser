@@ -105,7 +105,7 @@ class PostcodeSector:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance)
+    _es_client = es_client(es_instance=_es_instance, es_index="hk_postcode_sector")
     # _es_client.delete_index()
     _es_client.create_index()
     file_name = "london_postcode_sectors"
