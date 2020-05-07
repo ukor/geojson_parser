@@ -112,7 +112,7 @@ class London:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance)
+    _es_client = es_client(es_instance=_es_instance, es_index="hk_places")
     # do not uncomment, - it will delete the entire database...
     # ...action can't be undone, it is here for clean up purpose only
     # _es_client.delete_index()
