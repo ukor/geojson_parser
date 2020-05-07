@@ -26,7 +26,6 @@ class Constituncy:
         self.src_path = src_path
         self.es = es_instance
         self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
-        self.es_instance = es_instance
         self.write_count = 0
 
 
@@ -80,7 +79,8 @@ class Constituncy:
 
                 # Index to database
                 print(f"Indexing {_props['name']} with id {_props['id']}")
-                es_client(es_instance=self.es).add_doc(
+                es_client = self.es
+                es_client.add_doc(
                     id=file_name,
                     name=_props["name"].title(),
                     official_name=_props["name"].title(),
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     _es_client = es_client(es_instance=_es_instance, es_index="hk_places")
     _es_client.create_index()
     _src = f"./raw/london_constituncy.zip.geojson"
-    cons = Constituncy(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
+    cons = Constituncy(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
     _count = cons.parse()
     print(f"Created and Indexed {_count} constituncies")
     _es_client.refresh_index()

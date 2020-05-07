@@ -25,7 +25,6 @@ class Borough:
         self.src_path = src_path
         self.es = es_instance
         self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
-        self.es_instance = es_instance
         self.write_count = 0
 
 
@@ -79,7 +78,8 @@ class Borough:
 
                 # Index to database
                 print(f"Indexing {_props['name']} with id {_props['code']}")
-                es_client(es_instance=self.es).add_doc(
+                es_client = self.es
+                es_client.add_doc(
                     id=file_name,
                     name=_props["name"],
                     official_name=_props["name"],
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/london_boroughs.json"
-    borough = Borough(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
+    borough = Borough(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
     borough_count = borough.parse()
     print(f"Created and Indexed {borough_count} boroughs")
     _es_client.refresh_index()

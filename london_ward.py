@@ -27,7 +27,6 @@ class Wards:
         self.src_path = src_path
         self.es = es_instance
         self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
-        self.es_instance = es_instance
         self.write_count = 0
 
 
@@ -81,7 +80,8 @@ class Wards:
 
                 # Index to database
                 print(f"Indexing {_props['NAME']} with id {_props['GSS_CODE']}")
-                es_client(es_instance=self.es).add_doc(
+                es_client = self.es
+                es_client.add_doc(
                     id=file_name,
                     name=_props["NAME"],
                     official_name= _props["NAME"],
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/London-wards-2018.zip.geojson"
-    ward = Wards(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
+    ward = Wards(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
     ward_count = ward.parse()
     print(f"Created and Indexed {ward_count} ward")
     _es_client.refresh_index()
