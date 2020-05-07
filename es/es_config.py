@@ -85,7 +85,7 @@ class ConfigElasticSearch:
                 },
                 "scope": {
                     "type": "text",
-                    "index": False,
+                    "index": True,
                 }
             }
         }
