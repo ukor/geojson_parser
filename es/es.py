@@ -12,6 +12,12 @@ class es_client:
 
 
     def delete_index(self):
+        """delete_index This method will delete the entire index,
+                        This action can not be undone - use with caution
+
+        Returns:
+            bool: Returns True after delete operation
+        """
         es = self.es
         _delete_index = es.indices.delete(index=self._index, ignore=[400])
         print(f"Action => Deleted index", _delete_index)
@@ -29,6 +35,23 @@ class es_client:
         es = self.es
         _ref = es.indices.refresh(index=self._index)
         print(f"Action => Refreshed index", _ref)
+
+
+    def delete_by_query(self, query_string):
+        """delete_by_query Deletes documents that match the query_string
+        
+        Args:
+            query_string (str): String document is matched against
+        """
+        query = {
+            "query": {
+                "match": {
+                    "scope": query_string
+                }
+            }
+        }
+        _delete_index = es.indices.delete_by_query(index=self._index, ignore=[400], body=query)
+        print(f"Action => Deleted document with scope = {query_string}", _delete_index)
 
 
     def add_doc(self, *, id, name, district="", country, official_name, polygon_file_name, scope):
