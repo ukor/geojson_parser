@@ -109,7 +109,7 @@ class Borough:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance)
+    _es_client = es_client(es_instance=_es_instance, es_index="hk_places")
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/london_boroughs.json"
