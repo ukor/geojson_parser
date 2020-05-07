@@ -39,10 +39,11 @@ class es_client:
 
     def delete_by_query(self, query_string):
         """delete_by_query Deletes documents that match the query_string
-        
+
         Args:
             query_string (str): String document is matched against
         """
+        es = self.es
         query = {
             "query": {
                 "match": {
