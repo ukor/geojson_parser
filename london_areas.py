@@ -5,6 +5,7 @@
 from pathlib import Path
 from os.path import join
 import time
+import string
 
 import certifi
 from elasticsearch import Elasticsearch, RequestsHttpConnection
@@ -13,7 +14,6 @@ import ijson
 from requests_aws4auth import AWS4Auth
 import kml2geojson
 import requests
-import shortuuid
 
 
 from config.config import POLYGON_DESTINATION
@@ -59,11 +59,20 @@ class Place:
             obj = ijson.items(_file, "features.item")
             features = (o for o in obj if o["type"] == "Feature")
             _scope = "place"
+
+            # [see stackoverflow question] https://stackoverflow.com/q/53664775/3501729
+            table = str.maketrans("", "", string.punctuation)
+
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
                 place_name = _props["name"] if _props["name"].find(", London") < 0 else _props["name"][:_props["name"].find(", London")]
-                file_name = f'{_scope}_{shortuuid.uuid()}'
+
+                # remove all punctuation
+                s = [w.translate(table) for w in place_name]
+                s = "".join(s).replace(" ", "_").lower()
+                file_name = f"{_scope}_{s}"
+
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [
@@ -96,7 +105,7 @@ class Place:
 
     def _write_file(self, *,file_name, geojson):
         """_write_file - Write polygons into file"""
-        _f_name = file_name.replace("/", "_").replace(" ", "_")
+        _f_name = file_name.lower().replace("/", "_").replace(" ", "_")
         _file_path = join(self.dest_path, _f_name) + ".json"
         # write into file as json
         with open(_file_path, "w") as json_file:
