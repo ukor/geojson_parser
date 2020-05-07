@@ -51,7 +51,7 @@ class es_client:
                 }
             }
         }
-        _delete_index = es.indices.delete_by_query(index=self._index, ignore=[400], body=query)
+        _delete_index = es.delete_by_query(index=self._index, ignore=[400], body=query)
         print(f"Action => Deleted document with scope = {query_string}", _delete_index)
 
 
