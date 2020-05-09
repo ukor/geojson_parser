@@ -60,7 +60,7 @@ class PostcodeSector:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
                 london_index = _props["Name"].find(", London")
-                place_name = _props["Name"] if lon < 0 else _props["Name"][:lon]
+                place_name = _props["Name"] if london_index < 0 else _props["Name"][:london_index]
 
                 _id = hashFileName(removePuntautions(place_name).lower().replace(" ", "_"))
                 file_name = f'{_scope}_{_id}'

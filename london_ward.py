@@ -64,7 +64,7 @@ class Wards:
             _scope = "place"
             _poly = Polygon(poly)
             for feature in features:
-                _point = getPoints(feature.get("geometry"), {})
+                _point = getPoints(feature.get("geometry", {}))
                 # restricts polygons to only plcaes in Greater London
                 if _poly.contains(_point) or _poly.touches(_point):
                     # write to a new file using place id as file name

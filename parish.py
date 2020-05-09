@@ -96,7 +96,6 @@ class Parish:
                         name=_props["par19nm"],
                         official_name=f'{_props["par19nm"].title()}, London, UK',
                         area="London",
-                        country="UK",
                         polygon_file_name=file_name,
                         scope=_scope)
 
