@@ -5,7 +5,7 @@ from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 
 def hashFileName(fileName: str) -> str:
-    return sha256(input_.encode('utf-8')).hexdigest()
+    return sha256(fileName.encode('utf-8')).hexdigest()
 
 
 def removePuntautions(word: str) -> str:

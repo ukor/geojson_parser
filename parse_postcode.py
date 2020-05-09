@@ -87,7 +87,7 @@ class PostCode:
                 es_client.add_doc(
                     id=_id,
                     name=_props["name"],
-                    official_name=f'{_props["name"]}, London, UK'
+                    official_name=f'{_props["name"]}, London, UK',
                     area="London",
                     polygon_file_name=file_name,
                     scope=_scope)
