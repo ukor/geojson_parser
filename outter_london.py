@@ -40,7 +40,7 @@ for p in postcode:
     # download kml files
     r = requests.get(p.get("kml_url"))
 
-    with open(file_path, "wb") as file:
+    with open(file_path, "w") as file:
         file.write(r.content)
         # convert kml to geojson
         kml2geojson.main.convert(file_path, "./raw")
