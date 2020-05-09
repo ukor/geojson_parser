@@ -5,7 +5,6 @@
 from pathlib import Path
 from os.path import join
 import time
-import string
 
 import certifi
 from elasticsearch import Elasticsearch, RequestsHttpConnection
@@ -21,6 +20,7 @@ from es.es import es_client
 from es.es_config import ConfigElasticSearch
 from es_instance import es_instance
 
+from helpers import removePuntautions, hashFileName
 class Place:
     def __init__(self, *, src_path: str, dest_path: str, es_instance):
         self.home_dir = str(Path.home())
@@ -59,18 +59,14 @@ class Place:
             features = (o for o in obj if o["type"] == "Feature")
             _scope = "place"
 
-            # [see stackoverflow question] https://stackoverflow.com/q/53664775/3501729
-            table = str.maketrans("", "", string.punctuation)
-
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                place_name = _props["name"] if _props["name"].find(", London") < 0 else _props["name"][:_props["name"].find(", London")]
+                london_index = _props["name"].find(", London")
+                place_name = _props["name"] if london_index < 0 else _props["name"][:london_index]
 
-                # remove all punctuation
-                s = [w.translate(table) for w in place_name]
-                s = "".join(s).replace(" ", "_").lower()
-                file_name = f"{_scope}_{s}"
+                _id = hashFileName(removePuntautions(place_name).replace(" ", "_").lower())
+                file_name = f"{_scope}_{_id}"
 
                 _geo_json = {
                     "type": "FeatureCollection",
@@ -89,11 +85,10 @@ class Place:
                 print(f"Indexing {_props['name']} with id {file_name}")
                 es_client = self.es
                 es_client.add_doc(
-                    id=file_name,
+                    id=_id,
                     name=place_name,
-                    official_name=place_name,
-                    district="London",
-                    country="UK",
+                    official_name=f'{place_name.title()}, UK',
+                    area="London",
                     polygon_file_name=file_name,
                     scope=_scope)
 
@@ -105,8 +100,7 @@ class Place:
 
     def _write_file(self, *,file_name, geojson):
         """_write_file - Write polygons into file"""
-        _f_name = file_name.lower().replace("/", "_").replace(" ", "_")
-        _file_path = join(self.dest_path, _f_name) + ".json"
+        _file_path = join(self.dest_path, file_name) + ".json"
         # write into file as json
         with open(_file_path, "w") as json_file:
             json.dump(geojson, json_file, use_decimal=True, indent=2,
@@ -118,7 +112,7 @@ class Place:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance, es_index="hk_places")
+    _es_client = es_client(es_instance=_es_instance, es_index="places")
     # _es_client.delete_index()
     _es_client.create_index()
     file_name = "london_areas"
