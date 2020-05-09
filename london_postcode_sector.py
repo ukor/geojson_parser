@@ -17,12 +17,14 @@ from es.es import es_client
 from es.es_config import ConfigElasticSearch
 from es_instance import es_instance
 
+from helpers import removePuntautions, hashFileName
+
 class PostcodeSector:
     def __init__(self, *, src_path: str, dest_path: str, es_instance):
-        self.home_dir = str(Path.home())
+        home_dir = str(Path.home())
         self.src_path = src_path
         self.es = es_instance
-        self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
+        self.dest_path = f"{home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.write_count = 0
 
 
@@ -57,8 +59,11 @@ class PostcodeSector:
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-                place_name = _props["Name"] if _props["Name"].find(", London") < 0 else _props["Name"][:_props["Name"].find(", London")]
-                file_name = f'{_scope}_{place_name.lower().replace(" ", "_")}'
+                london_index = _props["Name"].find(", London")
+                place_name = _props["Name"] if lon < 0 else _props["Name"][:lon]
+
+                _id = hashFileName(removePuntautions(place_name).lower().replace(" ", "_"))
+                file_name = f'{_scope}_{_id}'
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [
@@ -76,11 +81,10 @@ class PostcodeSector:
                 print(f"Indexing {_props['Name']} with id {file_name}")
                 es_client = self.es
                 es_client.add_doc(
-                    id=file_name,
+                    id=_id,
                     name=place_name,
-                    official_name=place_name,
-                    district="London",
-                    country="UK",
+                    official_name=f"{place_name.title()}, London, Uk",
+                    area="London",
                     polygon_file_name=file_name,
                     scope=_scope)
 
@@ -92,8 +96,7 @@ class PostcodeSector:
 
     def _write_file(self, *,file_name, geojson):
         """_write_file - Write polygons into file"""
-        _f_name = file_name.lower().replace("/", "_").replace(" ", "_")
-        _file_path = join(self.dest_path, _f_name) + ".json"
+        _file_path = join(self.dest_path, file_name) + ".json"
         # write into file as json
         with open(_file_path, "w") as json_file:
             json.dump(geojson, json_file, use_decimal=True, indent=2,
@@ -105,7 +108,7 @@ class PostcodeSector:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance, es_index="hk_postcode_sector")
+    _es_client = es_client(es_instance=_es_instance, es_index="postcode_sectors")
     # _es_client.delete_index()
     _es_client.create_index()
     file_name = "london_postcode_sectors"

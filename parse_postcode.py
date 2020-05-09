@@ -20,13 +20,16 @@ from es.es import es_client
 from es.es_config import ConfigElasticSearch
 from es_instance import es_instance
 
+from helpers import removePuntautions, hashFileName
+
 class PostCode:
-    def __init__(self, *, src_path: str, dest_path: str, es_instance):
-        self.home_dir = str(Path.home())
+    def __init__(self, *, src_path: str, dest_path: str, es_instance, scope=None):
+        home_dir = str(Path.home())
         self.src_path = src_path
         self.es = es_instance
-        self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
+        self.dest_path = f"{home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.write_count = 0
+        self.scope = "postcode_district" if scope is None else scope
 
 
     def parse(self):
@@ -56,12 +59,12 @@ class PostCode:
         with open(self.src_path, "rb") as _file:
             obj = ijson.items(_file, "features.item")
             features = (o for o in obj if o["type"] == "Feature")
-            _scope = "postcode_area"
+            _scope = self.scope
             for feature in features:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
-
-                file_name = f'{_scope}_{_props["name"].lower()}'
+                _id = hashFileName(removePuntautions(_props["name"]).lower().replace(" ", "_"))
+                file_name = f'{_scope}_{_id}'
                 _geo_json = {
                     "type": "FeatureCollection",
                     "features": [
@@ -82,12 +85,10 @@ class PostCode:
                 print(f"Indexing {_props['name']} with id {file_name}")
                 es_client = self.es
                 es_client.add_doc(
-                    id=file_name,
+                    id=_id,
                     name=_props["name"],
-                    official_name=_props["name"],
-                    # London is a pamilary constinuncy not a district
-                    district="London",
-                    country="UK",
+                    official_name=f'{_props["name"]}, London, UK'
+                    area="London",
                     polygon_file_name=file_name,
                     scope=_scope)
 
@@ -99,8 +100,7 @@ class PostCode:
 
     def _write_file(self, *,file_name, geojson):
         """_write_file - Write polygons into file"""
-        _f_name = file_name.lower().replace("/", "_").replace(" ", "_")
-        _file_path = join(self.dest_path, _f_name) + ".json"
+        _file_path = join(self.dest_path, file_name) + ".json"
         # write into file as json
         with open(_file_path, "w") as json_file:
             json.dump(geojson, json_file, use_decimal=True, indent=2,
@@ -112,7 +112,7 @@ class PostCode:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance, es_index="hk_postcode_areas")
+    _es_client = es_client(es_instance=_es_instance, es_index="postcode_districts")
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/postcode_districts.json"
