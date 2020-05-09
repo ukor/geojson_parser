@@ -41,7 +41,7 @@ class ConfigElasticSearch:
             "place_tokenizer": {
                 "type": "edge_ngram",
                 "min_gram": 2,
-                "max_gram": 10,
+                "max_gram": 20,
                 "token_chars": [
                     "letter",
                     "digit",
@@ -52,6 +52,11 @@ class ConfigElasticSearch:
 
 
     def _index_analyzer(self):
+        """_index_analyzer Analyzer use at index time
+        
+        Returns:
+            dict: A dictionary mapping the analzer settings to it values
+        """
         return {
             "type": "custom",
             "tokenizer": "place_tokenizer",
@@ -71,21 +76,33 @@ class ConfigElasticSearch:
     def _mappings(self):
         return {
             "properties": {
+                # uses the edge-n-gram
                 "name": {
                     "type": "text",
+                    "analyzer": "index_place",
+                    "search_analyzer": "search_place"
+                },
+                # uses the search as you type field type
+                # [see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-as-you-type.html]
+                "s_name": {
+                    "type": "search_as_you_type",
                     "analyzer": "index_place",
                     "search_analyzer": "search_place"
                 },
                 "official_name": {
                     "type": "text"
                 },
-                "geo_path": {
+                "polygon_file_name": {
                     "type": "text",
                     "index": False,
                 },
+                "area": {
+                    "type": "text",
+                    "index": True,
+                },
                 "scope": {
                     "type": "text",
-                    "index": False,
+                    "index": True,
                 }
             }
         }

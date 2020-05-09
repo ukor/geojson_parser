@@ -55,13 +55,14 @@ class es_client:
         print(f"Action => Deleted document with scope = {query_string}", _delete_index)
 
 
-    def add_doc(self, *, id, name, district="", country, official_name, polygon_file_name, scope):
+    def add_doc(self, *, id, name, area, official_name, polygon_file_name, scope):
         doc = {
             "id": id,
             "name": name,
+            # field for search-as-you-type
+            "s_name": name,
             "official_name": official_name,
-            "district": district,
-            "country": country,
+            "area": area,
             "polygon_file_name": polygon_file_name,
             "scope": scope,
         }

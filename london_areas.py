@@ -27,7 +27,6 @@ class Place:
         self.src_path = src_path
         self.es = es_instance
         self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
-        self.es_instance = es_instance
         self.write_count = 0
 
 
@@ -88,7 +87,8 @@ class Place:
 
                 # Index to database
                 print(f"Indexing {_props['name']} with id {file_name}")
-                es_client(es_instance=self.es).add_doc(
+                es_client = self.es
+                es_client.add_doc(
                     id=file_name,
                     name=place_name,
                     official_name=place_name,
@@ -127,7 +127,7 @@ if __name__ == "__main__":
     # convert from kml to geoJSON
     kml2geojson.main.convert(_kml_src, "./raw")
     # Parse and index individual geoJson
-    place = Place(src_path=_geojson_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
+    place = Place(src_path=_geojson_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
     place_count = place.parse()
     print(f"Created and Indexed {place_count} boroughs")
     _es_client.refresh_index()

@@ -23,7 +23,6 @@ class PostcodeSector:
         self.src_path = src_path
         self.es = es_instance
         self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
-        self.es_instance = es_instance
         self.write_count = 0
 
 
@@ -75,7 +74,8 @@ class PostcodeSector:
 
                 # Index to database
                 print(f"Indexing {_props['Name']} with id {file_name}")
-                es_client(es_instance=self.es).add_doc(
+                es_client = self.es
+                es_client.add_doc(
                     id=file_name,
                     name=place_name,
                     official_name=place_name,
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     _geojson_src = f"./raw/{file_name}.geojson"
 
     # Parse and index individual geoJson
-    place = PostcodeSector(src_path=_geojson_src, dest_path=POLYGON_DESTINATION, es_instance=_es_instance)
+    place = PostcodeSector(src_path=_geojson_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
     place_count = place.parse()
     print(f"Created and Indexed {place_count} Postcode sector")
     _es_client.refresh_index()
