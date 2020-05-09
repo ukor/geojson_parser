@@ -13,7 +13,6 @@ from elasticsearch import Elasticsearch, RequestsHttpConnection
 import simplejson as json
 import ijson
 from requests_aws4auth import AWS4Auth
-from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 
 from config.config import POLYGON_DESTINATION
@@ -22,13 +21,15 @@ from es.es import es_client
 from es.es_config import ConfigElasticSearch
 from es_instance import es_instance
 
+from helpers import removePuntautions, hashFileName, getPoints
+
 from great_london_poly import poly
 class Parish:
     def __init__(self, *, src_path: str, dest_path: str, es_instance):
-        self.home_dir = str(Path.home())
+        home_dir = str(Path.home())
         self.src_path = src_path
         self.es = es_instance
-        self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
+        self.dest_path = f"{home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.write_count = 0
 
 
@@ -59,19 +60,18 @@ class Parish:
         with open(self.src_path, "rb") as _file:
             obj = ijson.items(_file, "features.item")
             features = (o for o in obj if o["type"] == "Feature")
-            _scope = "parish"
+            _scope = "place"
             # greater london polygon
             _poly = Polygon(poly)
             for feature in features:
-                fp = feature.get("geometry", {}).get("coordinates")[0][0]
-                _first_point = fp[0] if isinstance(fp[0], list) else fp
-                _point = Point(_first_point[0], _first_point[1])
-                # check if parish is withing great london
+                _point = getPoints(feature.get("geometry", {}))
+                # check if parish is within great london
                 # only write to file if parish is withing london
                 if _poly.contains(_point) or _poly.touches(_point):
                     # write to a new file using place id as file name
                     _props = feature["properties"]
-                    file_name = f'{_scope}_{_props["par19cd"].lower()}'
+                    _id = hashFileName(removePuntautions(_props["par19nm"]).lower().replace(" ", "_"))
+                    file_name = f'{_scope}_{_id}'
                     _geo_json = {
                         "type": "FeatureCollection",
                         "features": [
@@ -89,13 +89,13 @@ class Parish:
                     }
 
                     # Index to database
-                    print(f"Indexing {_props['par19nm']} with id {_props['par19cd']}")
+                    print(f"Indexing {_props['par19nm']} with id {_id}")
                     es_client = self.es
                     es_client.add_doc(
-                        id=file_name,
+                        id=_id,
                         name=_props["par19nm"],
-                        official_name=_props["par19nm"],
-                        district=_props["lad19nm"],
+                        official_name=f'{_props["par19nm"].title()}, London, UK',
+                        area="London",
                         country="UK",
                         polygon_file_name=file_name,
                         scope=_scope)
@@ -108,8 +108,7 @@ class Parish:
 
     def _write_file(self, *,file_name, geojson):
         """_write_file - Write polygons into file"""
-        _f_name = file_name.lower().replace("/", "_").replace(" ", "_")
-        _file_path = join(self.dest_path, _f_name) + ".json"
+        _file_path = join(self.dest_path, file_name) + ".json"
         # write into file as json
         with open(_file_path, "w") as json_file:
             json.dump(geojson, json_file, use_decimal=True, indent=2,
@@ -121,7 +120,7 @@ class Parish:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance, es_index="hk_places")
+    _es_client = es_client(es_instance=_es_instance, es_index="places")
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/parish.json"
