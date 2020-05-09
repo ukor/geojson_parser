@@ -40,14 +40,14 @@ for p in postcode:
     # download kml files
     r = requests.get(p.get("kml_url"))
 
-    with open(file_path, "wb") as file:
+    with open(file_path, "w") as file:
         file.write(r.content)
         # convert kml to geojson
         kml2geojson.main.convert(file_path, "./raw")
         geojson_file = join("./raw", f"{file_name}.geojson")
 
         # parse and index this geojson
-        _es_client = es_client(es_instance=es_instance(), es_index="hk_postcode_areas")
+        _es_client = es_client(es_instance=es_instance(), es_index="postcode_districts")
         _es_client.create_index()
         postcode_area = PostCode(src_path=geojson_file, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
         area_count = postcode_area.parse()
