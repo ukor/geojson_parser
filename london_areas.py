@@ -87,7 +87,7 @@ class Place:
                 es_client.add_doc(
                     id=_id,
                     name=place_name,
-                    official_name=f'{place_name.title()}, UK',
+                    official_name=f'{place_name.title()}, London, UK',
                     area="London",
                     polygon_file_name=file_name,
                     scope=_scope)
