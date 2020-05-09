@@ -13,6 +13,7 @@ from elasticsearch import Elasticsearch, RequestsHttpConnection
 import simplejson as json
 import ijson
 from requests_aws4auth import AWS4Auth
+from shapely.geometry.polygon import Polygon
 
 from config.config import POLYGON_DESTINATION
 
@@ -20,12 +21,15 @@ from es.es import es_client
 from es.es_config import ConfigElasticSearch
 from es_instance import es_instance
 
+from helpers import removePuntautions, hashFileName, getPoints
+from great_london_poly import poly
+
 class Constituncy:
     def __init__(self, *, src_path: str, dest_path: str, es_instance):
-        self.home_dir = str(Path.home())
+        home_dir = str(Path.home())
         self.src_path = src_path
         self.es = es_instance
-        self.dest_path = f"{self.home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
+        self.dest_path = f"{home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.write_count = 0
 
 
@@ -56,49 +60,54 @@ class Constituncy:
         with open(self.src_path, "rb") as _file:
             obj = ijson.items(_file, "features.item")
             features = (o for o in obj if o["type"] == "Feature")
-            _scope = "area"
+            _scope = "place"
+            # greater london polygon
+            _poly = Polygon(poly)
             for feature in features:
-                # write to a new file using place id as file name
-                _props = feature["properties"]
-                file_name = f'{_scope}_{_props["id"]}'
-                _geo_json = {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type":"Feature",
-                            "properties": {
-                                "name": _props["name"].title(),
-                                "gss_code": "",
-                                "district_code": "",
-                                "district_name": "",
-                            },
-                            "geometry": feature["geometry"]
-                        }
-                    ],
-                }
+                _point = getPoints(feature.get("geometry", {}))
+                # check if constituncy is within great london
+                # only write to file if constituncy is within london
+                if _poly.contains(_point) or _poly.touches(_point):
+                    # write to a new file using place id as file name
+                    _props = feature["properties"]
+                    _id = hashFileName(removePuntautions(_props["name"]).lower().replace(" ", "_"))
+                    file_name = f'{_scope}_{_id}'
+                    _geo_json = {
+                        "type": "FeatureCollection",
+                        "features": [
+                            {
+                                "type":"Feature",
+                                "properties": {
+                                    "name": _props["name"].title(),
+                                    "gss_code": "",
+                                    "district_code": "",
+                                    "district_name": "",
+                                },
+                                "geometry": feature["geometry"]
+                            }
+                        ],
+                    }
 
-                # Index to database
-                print(f"Indexing {_props['name']} with id {_props['id']}")
-                es_client = self.es
-                es_client.add_doc(
-                    id=file_name,
-                    name=_props["name"].title(),
-                    official_name=_props["name"].title(),
-                    district="London",
-                    country="UK",
-                    polygon_file_name=file_name,
-                    scope=_scope)
+                    # Index to database
+                    print(f"Indexing {_props['name']} with id {_props['id']}")
+                    es_client = self.es
+                    es_client.add_doc(
+                        id=_id,
+                        name=_props["name"].title(),
+                        official_name=f'{_props["name"].title()}, London, UK',
+                        area="London",
+                        polygon_file_name=file_name,
+                        scope=_scope)
 
-                self._write_file(file_name=file_name, geojson=_geo_json)
-                print(
-                    f"Start writing geoJSON from {Path(self.src_path).name} to {file_name}.json")
-                time.sleep(0.25)
+                    self._write_file(file_name=file_name, geojson=_geo_json)
+                    print(
+                        f"Start writing geoJSON from {Path(self.src_path).name} to {file_name}.json")
+                    time.sleep(0.25)
 
 
     def _write_file(self, *,file_name, geojson):
         """_write_file - Write polygons into file"""
-        _f_name = file_name.lower().replace("/", "_").replace(" ", "_")
-        _file_path = join(self.dest_path, _f_name) + ".json"
+        _file_path = join(self.dest_path, file_name) + ".json"
         # write into file as json
         with open(_file_path, "w") as json_file:
             json.dump(geojson, json_file, use_decimal=True, indent=2,
@@ -110,7 +119,7 @@ class Constituncy:
 if __name__ == "__main__":
     _es_instance = es_instance()
 
-    _es_client = es_client(es_instance=_es_instance, es_index="hk_places")
+    _es_client = es_client(es_instance=_es_instance, es_index="places")
     _es_client.create_index()
     _src = f"./raw/london_constituncy.zip.geojson"
     cons = Constituncy(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
