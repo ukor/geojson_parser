@@ -53,7 +53,7 @@ class ConfigElasticSearch:
 
     def _index_analyzer(self):
         """_index_analyzer Analyzer use at index time
-        
+
         Returns:
             dict: A dictionary mapping the analzer settings to it values
         """
@@ -76,18 +76,25 @@ class ConfigElasticSearch:
     def _mappings(self):
         return {
             "properties": {
-                # uses the edge-n-gram
+                # uses the edge-n-gram on the name field for searching
                 "name": {
                     "type": "text",
                     "analyzer": "index_place",
-                    "search_analyzer": "search_place"
+                    "search_analyzer": "search_place",
+                    # name.keyword will be use for sorting and aggregation
+                    # see https://www.elastic.co/guide/en/elasticsearch/reference/current/fielddata.html
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword"
+                        }
+                    }
                 },
                 # uses the search as you type field type
                 # [see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-as-you-type.html]
                 "s_name": {
                     "type": "search_as_you_type",
-                    "analyzer": "index_place",
-                    "search_analyzer": "search_place"
+                    # "analyzer": "index_place",
+                    # "search_analyzer": "search_place"
                 },
                 "official_name": {
                     "type": "text"
