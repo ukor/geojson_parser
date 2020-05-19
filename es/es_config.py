@@ -14,7 +14,6 @@ class ConfigElasticSearch:
         return {
             "settings": {
                 "analysis": {
-                    "filter": self._index_filter(),
                     "analyzer": {
                         "index_place": self._index_analyzer(),
                         "search_place": self._search_analyzer(),
@@ -24,17 +23,6 @@ class ConfigElasticSearch:
             },
             "mappings": self._mappings()
         }
-
-
-    def _index_filter(self):
-        return {
-            "place_filter": {
-                "type": "edge_ngram",
-                "min_gram": 1,
-                "max_gram": 20,
-            }
-        }
-
 
     def _index_tokenizer(self):
         return {
@@ -58,10 +46,9 @@ class ConfigElasticSearch:
             dict: A dictionary mapping the analzer settings to it values
         """
         return {
-            "type": "custom",
             "tokenizer": "place_tokenizer",
             "filter": [
-                "lowercase", "asciifolding", "apostrophe", "place_filter"
+                "lowercase", "asciifolding", "apostrophe"
             ]
         }
 
@@ -93,8 +80,8 @@ class ConfigElasticSearch:
                 # [see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-as-you-type.html]
                 "s_name": {
                     "type": "search_as_you_type",
-                    # "analyzer": "index_place",
-                    # "search_analyzer": "search_place"
+                    "analyzer": "index_place",
+                    "search_analyzer": "search_place"
                 },
                 "official_name": {
                     "type": "text"
