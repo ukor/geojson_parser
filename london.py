@@ -61,8 +61,8 @@ class London:
             _scope = self.scope
             for feature in features:
                 # write to a new file using place id as file name
+                _props = feature["properties"]
                 if _props["name"].lower() != "london":
-                    _props = feature["properties"]
                     _id = hashFileName(removePuntautions(_props["name"]).lower().replace(" ", "_"))
                     file_name = f'{_scope}_{_id}'
                     _geo_json = {
