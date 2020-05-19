@@ -3,8 +3,10 @@ At index time use the edge_ngram
 
 At search time use whatever th user as input to query elasticsearch
 
-[see edgengram](https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html)
-[see search-analyzer](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-analyzer.html)
+[see edgengram]
+(https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html)
+[see search-analyzer]
+(https://www.elastic.co/guide/en/elasticsearch/reference/current/search-analyzer.html)
 """
 
 
@@ -38,7 +40,6 @@ class ConfigElasticSearch:
             }
         }
 
-
     def _index_analyzer(self):
         """_index_analyzer Analyzer use at index time
 
@@ -52,13 +53,11 @@ class ConfigElasticSearch:
             ]
         }
 
-
     def _search_analyzer(self):
         return {
             "tokenizer": "keyword",
             "filter": ["lowercase", "asciifolding", "apostrophe"]
         }
-
 
     def _mappings(self):
         return {
@@ -69,7 +68,8 @@ class ConfigElasticSearch:
                     "analyzer": "index_place",
                     "search_analyzer": "search_place",
                     # name.keyword will be use for sorting and aggregation
-                    # see https://www.elastic.co/guide/en/elasticsearch/reference/current/fielddata.html
+                    # [see
+                    # https://www.elastic.co/guide/en/elasticsearch/reference/current/fielddata.html]
                     "fields": {
                         "keyword": {
                             "type": "keyword"
@@ -77,7 +77,8 @@ class ConfigElasticSearch:
                     }
                 },
                 # uses the search as you type field type
-                # [see https://www.elastic.co/guide/en/elasticsearch/reference/current/search-as-you-type.html]
+                # [see
+                # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-as-you-type.html]
                 "s_name": {
                     "type": "search_as_you_type",
                     "analyzer": "index_place",
@@ -100,4 +101,3 @@ class ConfigElasticSearch:
                 }
             }
         }
-

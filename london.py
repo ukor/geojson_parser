@@ -63,7 +63,7 @@ class London:
                 # write to a new file using place id as file name
                 _props = feature["properties"]
                 if _props["name"].lower() != "london":
-                    _id = hashFileName(removePuntautions(_props["name"]).lower().replace(" ", "_"))
+                    _id = hashFileName(removePuntautions("london").lower().replace(" ", "_"))
                     file_name = f'{_scope}_{_id}'
                     _geo_json = {
                         "type": "FeatureCollection",
@@ -86,7 +86,7 @@ class London:
                     es_client = self.es
                     es_client.add_doc(
                         id=_id,
-                        name=_props["name"],
+                        name="London",
                         official_name=f'{_props["name"].title()}, UK',
                         area="Greater London",
                         polygon_file_name=file_name,
