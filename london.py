@@ -61,40 +61,41 @@ class London:
             _scope = self.scope
             for feature in features:
                 # write to a new file using place id as file name
-                _props = feature["properties"]
-                _id = hashFileName(removePuntautions(_props["name"]).lower().replace(" ", "_"))
-                file_name = f'{_scope}_{_id}'
-                _geo_json = {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": {
-                                "name": _props["name"],
-                                "gss_code": "",
-                                "district_code": "",
-                                "district_name": "",
-                            },
-                            "geometry": feature["geometry"]
-                        }
-                    ],
-                }
+                if _props["name"].lower() != "london":
+                    _props = feature["properties"]
+                    _id = hashFileName(removePuntautions(_props["name"]).lower().replace(" ", "_"))
+                    file_name = f'{_scope}_{_id}'
+                    _geo_json = {
+                        "type": "FeatureCollection",
+                        "features": [
+                            {
+                                "type": "Feature",
+                                "properties": {
+                                    "name": _props["name"],
+                                    "gss_code": "",
+                                    "district_code": "",
+                                    "district_name": "",
+                                },
+                                "geometry": feature["geometry"]
+                            }
+                        ],
+                    }
 
-                # Index to database
-                print(f"Indexing {_props['name']} with id {file_name}")
-                es_client = self.es
-                es_client.add_doc(
-                    id=_id,
-                    name=_props["name"],
-                    official_name=f'{_props["name"].title()}, London, UK',
-                    area="London",
-                    polygon_file_name=file_name,
-                    scope=_scope)
+                    # Index to database
+                    print(f"Indexing {_props['name']} with id {file_name}")
+                    es_client = self.es
+                    es_client.add_doc(
+                        id=_id,
+                        name=_props["name"],
+                        official_name=f'{_props["name"].title()}, UK',
+                        area="Greater London",
+                        polygon_file_name=file_name,
+                        scope=_scope)
 
-                self._write_file(file_name=file_name, geojson=_geo_json)
-                print(
-                    f"Start writing geoJSON from {Path(self.src_path).name} to {file_name}.json")
-                time.sleep(0.25)
+                    self._write_file(file_name=file_name, geojson=_geo_json)
+                    print(
+                        f"Start writing geoJSON from {Path(self.src_path).name} to {file_name}.json")
+                    time.sleep(0.25)
 
 
     def _write_file(self, *,file_name, geojson):
@@ -114,7 +115,7 @@ if __name__ == "__main__":
     _es_client = es_client(es_instance=_es_instance, es_index="places")
     # do not uncomment, - it will delete the entire database...
     # ...action can't be undone, it is here for clean up purpose only
-    # _es_client.delete_index()
+    _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/london.json"
     london = London(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
