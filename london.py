@@ -18,14 +18,14 @@ from config.config import POLYGON_DESTINATION
 
 from es.es import es_client
 from es.es_config import ConfigElasticSearch
-from es_instance import es_instance
+from es_connection import es_connect
 
 from helpers import removePuntautions, hashFileName
 class London:
-    def __init__(self, *, src_path: str, dest_path: str, es_instance):
+    def __init__(self, *, src_path: str, dest_path: str, es_client):
         home_dir = str(Path.home())
         self.src_path = src_path
-        self.es = es_instance
+        self.es = es_client
         self.dest_path = f"{home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.write_count = 0
         self.scope = "place"
@@ -110,15 +110,15 @@ class London:
 
 
 if __name__ == "__main__":
-    _es_instance = es_instance()
+    _es_instance = es_connect()
 
     _es_client = es_client(es_instance=_es_instance, es_index="places")
     # do not uncomment, - it will delete the entire database...
     # ...action can't be undone, it is here for clean up purpose only
-    _es_client.delete_index()
+    # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/london.json"
-    london = London(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
+    london = London(src_path=_src, dest_path=POLYGON_DESTINATION, es_client=_es_client)
     area_count = london.parse()
     print(f"Created and Indexed {area_count} areas")
     _es_client.refresh_index()
