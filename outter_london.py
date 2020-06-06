@@ -7,7 +7,7 @@ from config.config import (ENV, POLYGON_DESTINATION)
 
 from es.es import es_client
 from es.es_config import ConfigElasticSearch
-from es_instance import es_instance
+from es_connection import es_connect
 
 postcode = [
     # outter london
@@ -47,9 +47,9 @@ for p in postcode:
         geojson_file = join("./raw", f"{file_name}.geojson")
 
         # parse and index this geojson
-        _es_client = es_client(es_instance=es_instance(), es_index="postcode_districts")
+        _es_client = es_client(es_instance=es_connect(), es_index="postcode_districts")
         _es_client.create_index()
-        postcode_area = PostCode(src_path=geojson_file, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
+        postcode_area = PostCode(src_path=geojson_file, dest_path=POLYGON_DESTINATION, es_client=_es_client)
         area_count = postcode_area.parse()
         print(f"Created and Indexed {area_count} postcode areas")
         _es_client.refresh_index()

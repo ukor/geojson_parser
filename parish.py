@@ -19,16 +19,16 @@ from config.config import POLYGON_DESTINATION
 
 from es.es import es_client
 from es.es_config import ConfigElasticSearch
-from es_instance import es_instance
+from es_connection import es_connect
 
 from helpers import removePuntautions, hashFileName, getPoints
 
 from great_london_poly import poly
 class Parish:
-    def __init__(self, *, src_path: str, dest_path: str, es_instance):
+    def __init__(self, *, src_path: str, dest_path: str, es_client):
         home_dir = str(Path.home())
         self.src_path = src_path
-        self.es = es_instance
+        self.es = es_client
         self.dest_path = f"{home_dir}/polygons" if dest_path in [None, False, ""] else dest_path
         self.write_count = 0
 
@@ -117,13 +117,13 @@ class Parish:
 
 
 if __name__ == "__main__":
-    _es_instance = es_instance()
+    _es_instance = es_connect()
 
     _es_client = es_client(es_instance=_es_instance, es_index="places")
     # _es_client.delete_index()
     _es_client.create_index()
     _src = f"./raw/parish.json"
-    parish = Parish(src_path=_src, dest_path=POLYGON_DESTINATION, es_instance=_es_client)
+    parish = Parish(src_path=_src, dest_path=POLYGON_DESTINATION, es_client=_es_client)
     parish_count = parish.parse()
     print(f"Created and Indexed {parish_count} parishs")
     _es_client.refresh_index()
