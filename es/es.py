@@ -2,7 +2,7 @@
 Interface for elastic search
 """
 import simplejson as json
-from .es_config import ConfigElasticSearch
+# from .es_config import ConfigElasticSearch
 # from config.config import ES_INDEX_NAME
 
 class es_client:
@@ -24,11 +24,12 @@ class es_client:
         return True
 
 
-    def create_index(self):
+    def create_index(self, *, configuration_instance):
         es = self.es
-        _es_config = ConfigElasticSearch().settings()
-        print(json.dumps(_es_config, indent=2, separators=(",", ":"), encoding="utf-8"))
-        _create_index = es.indices.create(body=_es_config, index=self._index, ignore=[400])
+        _create_index = es.indices.create(
+            body=configuration_instance().set(),
+            index=self._index, ignore=[400]
+        )
         print(f"Action => Created index", _create_index)
 
 
@@ -70,4 +71,9 @@ class es_client:
 
         res = self.es.index(index=self._index, id=id, body=doc)
         print(res["result"], id, "doc: to index")
+
+    def add_document(self, document: dict):
+        res = self.es.index(index=self._index, id=id, body=document)
+        print(res["result"], id, "doc: to index")
+        return res["result"]
 
