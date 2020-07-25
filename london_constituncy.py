@@ -18,7 +18,7 @@ from shapely.geometry.polygon import Polygon
 from config.config import POLYGON_DESTINATION
 
 from es.es import es_client
-from es.es_config import ConfigElasticSearch
+from es.es_config import PlaceConfiguration
 from es_connection import es_connect
 
 from helpers import removePuntautions, hashFileName, getPoints
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     _es_instance = es_connect()
 
     _es_client = es_client(es_instance=_es_instance, es_index="places")
-    _es_client.create_index()
+    _es_client.create_index(configuration_instance=PlaceConfiguration)
     _src = f"./raw/london_constituncy.zip.geojson"
     cons = Constituncy(src_path=_src, dest_path=POLYGON_DESTINATION, es_client=_es_client)
     _count = cons.parse()

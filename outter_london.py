@@ -6,7 +6,7 @@ from parse_postcode import PostCode
 from config.config import (ENV, POLYGON_DESTINATION)
 
 from es.es import es_client
-from es.es_config import ConfigElasticSearch
+from es.es_config import PlaceConfiguration
 from es_connection import es_connect
 
 postcode = [
@@ -48,7 +48,7 @@ for p in postcode:
 
         # parse and index this geojson
         _es_client = es_client(es_instance=es_connect(), es_index="postcode_districts")
-        _es_client.create_index()
+        _es_client.create_index(configuration_instance=PlaceConfiguration)
         postcode_area = PostCode(src_path=geojson_file, dest_path=POLYGON_DESTINATION, es_client=_es_client)
         area_count = postcode_area.parse()
         print(f"Created and Indexed {area_count} postcode areas")

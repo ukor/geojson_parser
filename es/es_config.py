@@ -1,7 +1,7 @@
 """
 At index time use the edge_ngram
 
-At search time use whatever th user as input to query elasticsearch
+At search time use keyword (whatever user has inputed) to query elasticsearch
 
 [see edgengram]
 (https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-edgengram-tokenizer.html)
@@ -9,16 +9,15 @@ At search time use whatever th user as input to query elasticsearch
 (https://www.elastic.co/guide/en/elasticsearch/reference/current/search-analyzer.html)
 """
 
-
-class ConfigElasticSearch:
-
-    def settings(self):
+class BaseConfiguration:
+    """ Base class for Elastic search configuration"""
+    def set(self):
         return {
             "settings": {
                 "analysis": {
                     "analyzer": {
-                        "index_place": self._index_analyzer(),
-                        "search_place": self._search_analyzer(),
+                        "default_index_analyzer": self._index_analyzer(),
+                        "default_search_analyzer": self._search_analyzer(),
                     },
                     "tokenizer": self._index_tokenizer(),
                 },
@@ -26,28 +25,9 @@ class ConfigElasticSearch:
             "mappings": self._mappings()
         }
 
-    def _index_tokenizer(self):
-        return {
-            "place_tokenizer": {
-                "type": "edge_ngram",
-                "min_gram": 2,
-                "max_gram": 20,
-                "token_chars": [
-                    "letter",
-                    "digit",
-                    "whitespace"
-                ]
-            }
-        }
-
     def _index_analyzer(self):
-        """_index_analyzer Analyzer use at index time
-
-        Returns:
-            dict: A dictionary mapping the analzer settings to it values
-        """
         return {
-            "tokenizer": "place_tokenizer",
+            "tokenizer": "default_tokenizer",
             "filter": [
                 "lowercase", "asciifolding", "apostrophe"
             ]
@@ -59,14 +39,32 @@ class ConfigElasticSearch:
             "filter": ["lowercase", "asciifolding", "apostrophe"]
         }
 
+    def _index_tokenizer(self):
+        return {
+            "default_tokenizer": {
+                "type": "edge_ngram",
+                "min_gram": 2,
+                "max_gram": 20,
+                "token_chars": [
+                    "letter",
+                    "digit",
+                    "whitespace"
+                ]
+            }
+        }
+
+
+class PlaceConfiguration(BaseConfiguration):
+    """ Configuration for Place suggestions"""
+
     def _mappings(self):
         return {
             "properties": {
                 # uses the edge-n-gram on the name field for searching
                 "name": {
                     "type": "text",
-                    "analyzer": "index_place",
-                    "search_analyzer": "search_place",
+                    "analyzer": "default_index_analyzer",
+                    "search_analyzer": "default_search_analyzer",
                     # name.keyword will be use for sorting and aggregation
                     # [see
                     # https://www.elastic.co/guide/en/elasticsearch/reference/current/fielddata.html]
@@ -81,8 +79,8 @@ class ConfigElasticSearch:
                 # https://www.elastic.co/guide/en/elasticsearch/reference/current/search-as-you-type.html]
                 "s_name": {
                     "type": "search_as_you_type",
-                    "analyzer": "index_place",
-                    "search_analyzer": "search_place"
+                    "analyzer": "default_index_analyzer",
+                    "search_analyzer": "default_search_analyzer"
                 },
                 "official_name": {
                     "type": "text"
@@ -98,6 +96,31 @@ class ConfigElasticSearch:
                 "scope": {
                     "type": "text",
                     "index": True,
+                }
+            }
+        }
+
+
+class AmenitiesConfiguration(BaseConfiguration):
+    def _mappings(self):
+        return {
+            "properties": {
+                # uses the edge-n-gram on the name field for searching
+                "amenity": {
+                    "type": "text",
+                    "analyzer": "default_index_analyzer",
+                    "search_analyzer": "default_search_analyzer",
+                    "index": True,
+                },
+                # school, bank, pubs
+                # "category": {
+                #     "type": "text",
+                #     "index": True,
+                # },
+                # defaults to local
+                "scope": {
+                    "type": "text",
+                    "index": False,
                 }
             }
         }

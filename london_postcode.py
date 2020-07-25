@@ -17,7 +17,7 @@ from requests_aws4auth import AWS4Auth
 from config.config import POLYGON_DESTINATION
 
 from es.es import es_client
-from es.es_config import ConfigElasticSearch
+from es.es_config import PlaceConfiguration
 from es_connection import es_connect
 
 from helpers import removePuntautions, hashFileName
@@ -115,7 +115,7 @@ if __name__ == "__main__":
 
     _es_client = es_client(es_instance=_es_instance, es_index="postcode_districts")
     # _es_client.delete_index()
-    _es_client.create_index()
+    _es_client.create_index(configuration_instance=PlaceConfiguration)
     _src = f"./raw/london_postcodes_map.geojson"
     postcode_area = LondonPostCode(src_path=_src, dest_path=POLYGON_DESTINATION, es_client=_es_client)
     area_count = postcode_area.parse()
