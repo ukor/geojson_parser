@@ -1,6 +1,7 @@
 from es.es import es_client
 from es_connection import es_connect
 from es.es_config import AmenitiesConfiguration
+from helpers import hashFileName, removePuntautions
 
 
 amenities = [
@@ -904,8 +905,14 @@ class AreaAmenities:
             "scope": "local"
         }
 
-
+# conect to elastic search instance
+_es_client = es_client(es_instance=es_connect(), es_index="area_amenities")
+# delete previous index
+_es_client.delete_index()
+# create the elastic search index
+_es_client.create_index(configuration_instance=AmenitiesConfiguration)
+# add documents to the index
 for amenity in amenities:
-    _es_client = es_client(es_instance=es_connect(), es_index="area_amenities")
-    _es_client.create_index(configuration_instance=AmenitiesConfiguration)
-    _es_client.add_document(AreaAmenities(amenity).to_dict())
+    _amenity = AreaAmenities(amenity).to_dict()
+    _amenity["id"] = hashFileName(removePuntautions(_amenity.get("name")))
+    _es_client.add_document(_amenity)

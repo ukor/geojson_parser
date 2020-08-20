@@ -29,14 +29,14 @@ class BaseConfiguration:
         return {
             "tokenizer": "default_tokenizer",
             "filter": [
-                "lowercase", "asciifolding", "apostrophe"
+                "lowercase", "asciifolding",
             ]
         }
 
     def _search_analyzer(self):
         return {
             "tokenizer": "keyword",
-            "filter": ["lowercase", "asciifolding", "apostrophe"]
+            "filter": ["lowercase", "asciifolding"]
         }
 
     def _index_tokenizer(self):
