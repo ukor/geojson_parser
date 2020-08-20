@@ -73,7 +73,7 @@ class es_client:
         print(res["result"], id, "doc: to index")
 
     def add_document(self, document: dict):
-        res = self.es.index(index=self._index, body=document)
+        res = self.es.index(index=self._index, id=document.get('id', None), body=document)
         print(res, "doc: to index")
         return res
 
