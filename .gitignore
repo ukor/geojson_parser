@@ -7,3 +7,4 @@ __pycache__/
 *.nginx.conf
 uk/
 .env
+venv/
